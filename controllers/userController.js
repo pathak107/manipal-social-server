@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 //importing models
 const User = require('../models/users');
 
-exports.user_register=(req, res) => {
+exports.user_register = (req, res) => {
     //checking if the user does not already exists
     User.find({ email: req.body.email }, (err, user) => {
         if (err) {
@@ -61,14 +61,14 @@ exports.user_register=(req, res) => {
                         },
                         `${process.env.JWT_SECRET}`,
                         {
-                            expiresIn:"7d"
+                            expiresIn: "7d"
                         }
                     )
                     return res.status(200).json({
                         status: "success",
                         message: "created new user",
-                        token:token,
-                        data:newUser
+                        token: token,
+                        data: newUser
                     })
                 })
             });
@@ -78,7 +78,7 @@ exports.user_register=(req, res) => {
 
 
 
-exports.user_login=(req, res) => {
+exports.user_login = (req, res) => {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (err) {
             return res.json({
@@ -111,14 +111,14 @@ exports.user_login=(req, res) => {
                     },
                     'secret',
                     {
-                        expiresIn:"7d"
+                        expiresIn: "7d"
                     }
                 )
                 return res.status(200).json({
                     status: "success",
                     message: "User Authenticated",
                     token: token,
-                    data:user
+                    data: user
 
                 })
             }
@@ -133,40 +133,68 @@ exports.user_login=(req, res) => {
     })
 }
 
-exports.user_get_all=(req,res)=>{
-    User.find((err,users)=>{
-        if(err){
+exports.user_get_all = (req, res) => {
+    User.find((err, users) => {
+        if (err) {
             return res.json({
                 status: "failure",
                 message: "Some error occurred with database",
-                error:err
+                error: err
             })
         }
         return res.json({
             status: "success",
             message: "All the users",
-            data:users
+            data: users
         })
 
     })
 }
 
-exports.user_delete=(req,res)=>{
-    const userID=req.params.userID;
-    User.findByIdAndDelete(userID, (err, doc)=>{ 
-        if (err){ 
+exports.user_delete = (req, res) => {
+    const userID = req.params.userID;
+    User.findByIdAndDelete(userID, (err, doc) => {
+        if (err) {
             return res.json({
                 status: "failure",
                 message: "Some error occurred with database",
-                error:err
-            }) 
-        } 
-        else{ 
+                error: err
+            })
+        }
+        else {
             return res.json({
                 status: "success",
                 message: "Deleted the user",
-                data:doc
+                data: doc
             })
-        } 
+        }
     });
+}
+
+
+//Firebase cloud messaging token for push notifications
+exports.store_fcmToken = (req, res) => {
+    const fcmToken = req.params.fcmToken;
+    if (fcmToken != null) {
+        User.updateOne({ _id: req.userData.user_id }, { $set: { fcmToken: fcmToken } }, (err, user) => {
+            if (err || user == null || user == undefined) {
+                return res.json({
+                    status: "failure",
+                    message: "Some error occured with database and server"
+                })
+            }
+            else {
+                return res.status(200).json({
+                    status: "success",
+                    message: "Fcm token stored successfully"
+                })
+            }
+        })
+    }
+    else {
+        return res.json({
+            status: "failure",
+            message: "No fcm token provided"
+        })
+    }
 }

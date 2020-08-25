@@ -5,8 +5,8 @@ const router = express.Router()
 const checkAuth=require('../middleware/check-auth')
 
 //importing controller
-const placeController=require('../controllers/placeController')
+const placeController=require('../controllers/placeController');
 
-router.get('/',checkAuth,placeController.place_get_all)
+router.get('/list',checkAuth,placeController.place_get_all);
 
 module.exports = router
