@@ -9,9 +9,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/users');
 
 exports.user_register = (req, res) => {
+    console.log(req.body.password);
+    console.log(req.body.email);
+    console.log(req.body.name);
+    console.log(req.body.phoneNumber);
     //checking if the user does not already exists
     User.find({ email: req.body.email }, (err, user) => {
         if (err) {
+            console.log(err)
             return res.json({
                 status: "failure",
                 message: "Some unknown error occurred with database",
@@ -27,11 +32,10 @@ exports.user_register = (req, res) => {
         }
         else {
             bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-                if (err) {
+                if (err || req.body.password=="") {
                     return res.json({
                         status: "failure",
-                        message: "Failed to create new user",
-
+                        message: "Failed to create new user.",
                         error: err,
                     })
                 }
@@ -45,10 +49,10 @@ exports.user_register = (req, res) => {
 
                 user.save((err, newUser) => {
                     if (err) {
+                        console.log(err)
                         return res.json({
                             status: "failure",
-                            message: "Failed to create new user",
-
+                            message: "Failed to create new user.",
                             error: err,
                         })
                     }
@@ -66,9 +70,13 @@ exports.user_register = (req, res) => {
                     )
                     return res.status(200).json({
                         status: "success",
-                        message: "created new user",
+                        message: "Created new user successfully.",
                         token: token,
-                        data: newUser
+                        data: {
+                            name:newUser.name,
+                            email:newUser.email,
+                            phoneNumber:newUser.phoneNumber
+                        }
                     })
                 })
             });
@@ -80,6 +88,7 @@ exports.user_register = (req, res) => {
 
 exports.user_login = (req, res) => {
     User.findOne({ email: req.body.email }, (err, user) => {
+        console.log(err)
         if (err) {
             return res.json({
                 status: "failure",
@@ -93,7 +102,7 @@ exports.user_login = (req, res) => {
         if (user == null || user == undefined) {
             return res.json({
                 status: "failure",
-                message: "Auth failed.",
+                message: "Email or password provided is incorrect.",
 
             })
         }
@@ -125,7 +134,7 @@ exports.user_login = (req, res) => {
             else {
                 return res.json({
                     status: "failure",
-                    message: "Auth failed.",
+                    message: "Email or password incorrect.",
                 })
             }
         });
