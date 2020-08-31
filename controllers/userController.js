@@ -118,7 +118,7 @@ exports.user_login = (req, res) => {
                         name: user.name,
                         phoneNumber: user.phoneNumber
                     },
-                    'secret',
+                    `${process.env.JWT_SECRET}`,
                     {
                         expiresIn: "7d"
                     }
