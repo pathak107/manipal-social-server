@@ -10,7 +10,9 @@ router.post('/register', userController.user_register)
 
 router.post('/login',userController.user_login )
 
-router.get('/',userController.user_get_all);
+router.patch('/changePassword',checkAuth,userController.user_password_change);
+
+router.delete('/deleteAccount',checkAuth,userController.user_account_delete);
 
 router.patch('/storeFcm/:fcmToken',checkAuth,userController.store_fcmToken);
 

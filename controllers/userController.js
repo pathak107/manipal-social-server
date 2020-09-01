@@ -32,7 +32,7 @@ exports.user_register = (req, res) => {
         }
         else {
             bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-                if (err || req.body.password=="") {
+                if (err || req.body.password == "") {
                     return res.json({
                         status: "failure",
                         message: "Failed to create new user.",
@@ -73,9 +73,9 @@ exports.user_register = (req, res) => {
                         message: "Created new user successfully.",
                         token: token,
                         data: {
-                            name:newUser.name,
-                            email:newUser.email,
-                            phoneNumber:newUser.phoneNumber
+                            name: newUser.name,
+                            email: newUser.email,
+                            phoneNumber: newUser.phoneNumber
                         }
                     })
                 })
@@ -142,6 +142,7 @@ exports.user_login = (req, res) => {
     })
 }
 
+//getting all the users
 exports.user_get_all = (req, res) => {
     User.find((err, users) => {
         if (err) {
@@ -160,7 +161,8 @@ exports.user_get_all = (req, res) => {
     })
 }
 
-exports.user_delete = (req, res) => {
+//delete a particular user based on _id
+exports.user_delete_admin = (req, res) => {
     const userID = req.params.userID;
     User.findByIdAndDelete(userID, (err, doc) => {
         if (err) {
@@ -180,6 +182,81 @@ exports.user_delete = (req, res) => {
     });
 }
 
+//delete account requested by user
+exports.user_account_delete = (req, res) => {
+    const userID = req.userData.user_id
+    User.findByIdAndDelete(userID, (err, doc) => {
+        if (err) {
+            return res.json({
+                status: "failure",
+                message: "Some error occurred with database",
+                error: err
+            })
+        }
+        else {
+            return res.json({
+                status: "success",
+                message: "Deleted the user",
+                data: doc
+            })
+        }
+    });
+}
+
+//Change password requested by user
+exports.user_password_change = (req, res) => {
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword;
+    const userID = req.userData.user_id;
+    User.findById(userID, (err, user) => {
+        if (err) {
+            return res.json({
+                status: "failure",
+                message: "Some error occurred with database",
+                error: err
+            })
+        }
+        //if the user is found check the old password
+        if (user != null) {
+            bcrypt.compare(oldPassword, user.password, (err, result)=> {
+                if (result == true) {
+                    // if password matched with old password
+                    //update the user's password to newPassword
+                    bcrypt.hash(newPassword, saltRounds, (err, hash)=> {
+                        if (err || req.body.password == "") {
+                            return res.json({
+                                status: "failure",
+                                message: "Password provided is incorrect.",
+                                error: err,
+                            })
+                        }
+
+                        //Update the user password to hash
+                        user.password=hash;
+                        user.save((err,updatedUser)=>{
+                            return res.json({
+                                status: "success",
+                                message: "Update the password succesfully",
+                            })
+                        });
+                    });
+                }
+                else {
+                    return res.json({
+                        status: "failure",
+                        message: "Password provided is incorrect.",
+                    })
+                }
+            });
+        } else {
+            return res.json({
+                status: "failure",
+                message: "User not found",
+            })
+        }
+    })
+
+}
 
 //Firebase cloud messaging token for push notifications
 exports.store_fcmToken = (req, res) => {
