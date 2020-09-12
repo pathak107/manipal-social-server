@@ -5,7 +5,7 @@ const UpcomingEventSchema = new mongoose.Schema({
         required:true
     },
     when:{
-        type:String,
+        type:Date,
         required:true,
     },
     what:{

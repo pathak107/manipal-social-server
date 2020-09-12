@@ -7,6 +7,7 @@ const ExperienceSchema = new mongoose.Schema({
     user_id:{
         type:mongoose.Types.ObjectId,
         required:true,
+        ref:'User'
     },
     place_id:{
         type:mongoose.Types.ObjectId,
