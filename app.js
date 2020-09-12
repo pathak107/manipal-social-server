@@ -41,5 +41,5 @@ app.use((req,res)=>{
     })
 })
 app.listen(process.env.PORT || 3000,()=>{
-    console.log("server started at port "+ port)
+    console.log("server started");
 })
