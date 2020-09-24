@@ -6,11 +6,11 @@ const ChatSchema = new mongoose.Schema({
     },
     user_id:{
         type:mongoose.Types.ObjectId,
-        required:true
+        required:true,
+        ref:'User'
     },
     createdAt:{
         type:Date,
-        required:true,
         default: Date.now
     },
   });
