@@ -12,6 +12,7 @@ const ExperienceSchema = new mongoose.Schema({
     place_id:{
         type:mongoose.Types.ObjectId,
         required:true,
+        ref:'Place'
     },
     likes:{
         type:Number,

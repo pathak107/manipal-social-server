@@ -9,8 +9,9 @@ chatController.createWebSocketServer(server);
 
 //settig up body parse
 const bodyParser=require('body-parser');
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+
+//setting express static for logo
+app.use(express.static('public'))
 
 //connection for mongoDB
 const mongoose = require('mongoose');
@@ -32,6 +33,9 @@ const cabRoute=require('./routes/cab');
 
 //initializing routes
 app.use('/admin',adminRoute);
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json()); //this is necessary to use body-parser after admin bro
+
 app.use('/user',userRoute);
 app.use('/places',placeRoute);
 app.use('/experiences',experienceRoute);

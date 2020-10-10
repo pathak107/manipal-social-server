@@ -1,33 +1,124 @@
-var express = require('express')
-var router = express.Router()
+const AdminBro = require('admin-bro')
+const AdminBroExpress = require('admin-bro-expressjs')
+const AdminBroMongoose = require('admin-bro-mongoose')
 
-//importing controllers
-const placeController=require('../controllers/placeController');
-const userController=require('../controllers/userController');
-const eventController=require('../controllers/eventController');
+const Place = require('../models/places')
+const Event = require('../models/events');
+const Exp = require('../models/experiences')
+const Chat = require('../models/chats');
+const UpcomingEvent = require('../models/upcomingEvents');
+const User = require('../models/users')
 
-//Admin user related routes
-router.post('/login',(req,res)=>{});
 
-//Place related routes
-router.post('/createPlace',placeController.place_create)
-router.get('/listPlaces',placeController.place_get_all);
-router.delete('/deletePlace/:placeID',placeController.place_delete);
-router.put('/updatePlace/:placeID',placeController.place_update);
+AdminBro.registerAdapter(AdminBroMongoose)
+const adminBro = new AdminBro({
+    rootPath: '/admin',
+    resources: [
+        {
+            resource: Place,
+            options: {
+                properties: {
+                    name: { isVisible: { list: true, filter: true, show: true, edit: true } },
+                    type: {
+                        isVisible: { list: true, filter: true, show: true, edit: true },
+                        availableValues: [
+                            { value: 'club', label: 'Club' },
+                            { value: 'beach', label: 'Beach' },
+                            { value: 'resturant', label: 'Resturant' },
 
-//events related routes
-router.get('/listEvents',eventController.events_get_all);
-router.post('/createEvent',eventController.event_create);
-router.patch('/editEvent/:eventID',eventController.event_update);
-router.delete('/deleteEvent/:eventID',eventController.event_delete);
+                        ],
+                    },
+                    what: { isVisible: { list: false, filter: false, show: true, edit: true }, },
+                    where: { isVisible: { list: false, filter: false, show: true, edit: true } },
+                    specialInfo: { isVisible: { list: true, filter: true, show: true, edit: true } },
+                    imageUrl: { isVisible: { list: false, filter: false, show: true, edit: true } },
+                    coordinates: { isVisible: { list: false, filter: false, show: true, edit: true } },
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                }
+            }
+        },
+        {
+            resource: Event,
+            options: {
+                properties: {
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                }
+            },
+        },
+        {
+            resource: Exp,
+            options: {
+                actions: {
+                    edit: { isAccessible: false },
+                    new: { isAccessible: false },
+                },
+                properties: {
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                }
 
-//upcoming events related routes
-router.get('/listUpcomingEvents',eventController.upcomingevents_get_all);
-router.post('/createUpcomingEvent',eventController.upcomingevent_create);
-router.patch('/editUpcomingEvent/:upcomingEventID',eventController.upcomingevent_update);
-router.delete('/deleteUpcomingEvent/:upcomingEventID',eventController.upcomingevent_delete);
+            }
+        },
+        {
+            resource: UpcomingEvent,
+            options: {
+                properties: {
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                    imageUrl: { isVisible: { list: false, filter: false, show: true, edit: true } },
+                    contacts: { isVisible: { list: false, filter: false, show: true, edit: true } },
+                }
+            }
+        },
+        {
+            resource: Chat,
+            options: {
+                actions: {
+                    edit: { isAccessible: false },
+                    new: { isAccessible: false },
+                },
+                properties: {
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                }
 
-//user related routes
-router.get('/listUsers',userController.user_get_all);
+            }
+        },
+        {
+            resource: User,
+            options: {
+                actions: {
+                    edit: { isAccessible: false },
+                    new: { isAccessible: false },
+                },
+                properties: {
+                    _id: { isVisible: { list: false, filter: false, show: false, edit: false } },
+                }
 
-module.exports = router
+            }
+        },
+    ],
+    branding: {
+        logo: '/images/mainLogo.png',
+        companyName: 'Manipal Social',
+        softwareBrothers: false   // if Software Brothers logos should be shown in the sidebar footer
+    },
+})
+
+// Build and use a router which will handle all AdminBro routes
+const router = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
+    authenticate: async (email, password) => {
+        if (email == 'admin@gmail.com' && password == 'qwerty') {
+            return true
+        }
+        else {
+            return false
+        }
+    },
+    cookiePassword: process.env.ADMIN_SESSION_SECRET,
+    },
+    null,
+    {
+        resave: true,
+        saveUninitialized: true
+    }
+)
+
+module.exports = adminRouter = router
