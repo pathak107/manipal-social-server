@@ -105,7 +105,7 @@ const adminBro = new AdminBro({
 // Build and use a router which will handle all AdminBro routes
 const router = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
     authenticate: async (email, password) => {
-        if (email == process.env.ADMIN_EMAIL && password == process.env.PASS) {
+        if (email == process.env.ADMIN_EMAIL && password == process.env.ADMIN_PASS) {
             return true
         }
         else {
