@@ -1,10 +1,10 @@
 //importing models
 const Exp = require('../models/experiences');
+const User=require('../models/users')
 exports.exp_get_all = (req, res) => {
     //send list of all the experiences of a place
     console.log("fetching all experiences");
     Exp.find({place_id:req.params.placeID},(err, exps) => {
-        console.log(exps);
         if (err) {
             return res.json({
                 status: "failure",
@@ -12,24 +12,12 @@ exports.exp_get_all = (req, res) => {
                 error: err,
             })
         }
-        //segregate depending upon likes and dates
-        var mostLikedExp = [];
-        var dateSortedExp = [];
-        mostLikedExp = exps.sort((a, b) => {
-            return b.likes - a.likes
-        })
-        //only 10 most liked exps
-        mostLikedExp = mostLikedExp.slice(0, 5);
-
-        dateSortedExp = exps.sort((a, b) => {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        });
+    
         return res.status(200).json({
             status: "success",
             message: "Retrived all the experinces",
             data: {
-                mostLikedExp: mostLikedExp,
-                dateSortedExp: dateSortedExp,
+                Exps:exps,
             }
         })
     }).populate('user_id');
@@ -105,7 +93,8 @@ exports.exp_delete_user = (req, res) => {
 
 exports.exp_update_likes = (req, res) => {
     const expID = req.params.expID;
-    Exp.findById(expID, (err, exp) => {
+
+    Exp.findById(expID, async (err, exp) => {
         if (err) {
             return res.json({
                 status: "failure",
@@ -118,8 +107,14 @@ exports.exp_update_likes = (req, res) => {
         //like or unlike
         if(req.query.type=='like'){
             exp.likes = exp.likes + 1;
+            exp.likedBy.push(req.userData.user_id)
         }else{
             exp.likes = exp.likes - 1;
+            exp.likedBy=exp.likedBy.filter((value)=>{
+                if(value!==req.userData.user_id){
+                    return value
+                }
+            })
         }
         exp.save((err, updatedExp) => {
             if (err) {
@@ -129,7 +124,7 @@ exports.exp_update_likes = (req, res) => {
                     error: err,
                 })
             }
-            console.log(updatedExp);
+            console.log(updatedExp.likedBy);
             return res.status(200).json({
                 status: "success",
                 message: "updated likes",

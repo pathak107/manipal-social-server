@@ -18,6 +18,7 @@ const ExperienceSchema = new mongoose.Schema({
         type:Number,
         default:0
     },
+    likedBy:Array,
     createdAt:{
         type:Date,
         required:true,

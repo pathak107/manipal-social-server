@@ -3,6 +3,5 @@ const chatController = require('../controllers/chatController')
 const checkAuth = require('../middleware/check-auth');
 var router = express.Router()
 
-router.delete('/deleteChat/:chatID',checkAuth,chatController.deleteChat)
 
 module.exports = router
